@@ -563,7 +563,6 @@ export default function EventSessionsPage({ params }: { params: Promise<{ id: st
                       </div>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button onClick={() => handleToggleFavorite(session.id)}
                         className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${isFav ? "bg-amber-400/15 border-amber-400/30 text-amber-400" : "bg-white/5 border-white/7 text-[#4b5563] hover:text-amber-400"}`}>
