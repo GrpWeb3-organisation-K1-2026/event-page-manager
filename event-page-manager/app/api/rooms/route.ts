@@ -11,7 +11,10 @@ export async function GET(request: NextRequest) {
       page:  searchParams.get("page")  ? parseInt(searchParams.get("page")!,  10) : undefined,
       limit: searchParams.get("limit") ? parseInt(searchParams.get("limit")!, 10) : undefined,
     });
-    return NextResponse.json(result);
+    const response = NextResponse.json(result);
+    response.headers.set("X-Total-Count", String(result.meta.total));
+    response.headers.set("Access-Control-Expose-Headers", "X-Total-Count");
+    return response;
   } catch (err) {
     return handleRoomError(err);
   }

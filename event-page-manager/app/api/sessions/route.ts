@@ -6,10 +6,6 @@ import type {
   SessionFilters,
 } from "@/app/lib/types/session.types";
 
-/**
- * GET /api/sessions
- * Query params: eventId, roomId, page, limit
- */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
@@ -30,16 +26,15 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await sessionService.getAll(filters);
-    return NextResponse.json(result);
+    const response = NextResponse.json(result);
+    response.headers.set("X-Total-Count", String(result.meta.total));
+    response.headers.set("Access-Control-Expose-Headers", "X-Total-Count");
+    return response;
   } catch (err) {
     return handleError(err);
   }
 }
 
-/**
- * POST /api/sessions
- * Body: CreateSessionDTO
- */
 export async function POST(request: NextRequest) {
   let body: CreateSessionDTO;
   try {
