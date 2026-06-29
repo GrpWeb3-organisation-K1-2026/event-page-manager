@@ -1,14 +1,29 @@
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env" });
-import { PrismaClient } from "../app/generated/prisma";
+import { PrismaClient } from "../app/generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import bcrypt from "bcryptjs";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  const hashedPwd = await bcrypt.hash("admin123", 10);
+  await prisma.user.upsert({
+    where: { username: "admin" },
+    update: {},
+    create: {
+      username: "admin",
+      email: "admin@eventsync.dev",
+      password: hashedPwd,
+      fullName: "Admin EventSync",
+      role: "admin",
+    },
+  });
+  console.log("User admin créé : admin / admin123");
+
   const room1 = await prisma.room.create({ data: { name: "Grande Salle A" } });
   const room2 = await prisma.room.create({ data: { name: "Salle B" } });
 
