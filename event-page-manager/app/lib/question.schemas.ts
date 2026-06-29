@@ -13,7 +13,7 @@ export const CreateQuestionSchema = z.object({
     .nullable()
     .optional(),
   sessionId: z
-    .number({ required_error: "sessionId is required" })
+    .number({ message: "sessionId is required" })
     .int()
     .positive("sessionId must be a positive integer"),
 });

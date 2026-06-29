@@ -20,14 +20,11 @@ export const SPEAKER_INCLUDE = {
 } satisfies Prisma.SpeakerInclude;
 
 export const speakerRepository = {
-
   async findMany(filters: SpeakerFilters) {
     const { sessionId, page = 1, limit = 20 } = filters;
-
     const where: Prisma.SpeakerWhereInput = sessionId
       ? { sessions: { some: { sessionId } } }
       : {};
-
     const [total, rows] = await prisma.$transaction([
       prisma.speaker.count({ where }),
       prisma.speaker.findMany({
@@ -38,7 +35,6 @@ export const speakerRepository = {
         take: limit,
       }),
     ]);
-
     return { rows, total, page, limit };
   },
 
@@ -51,13 +47,14 @@ export const speakerRepository = {
 
   async create(data: CreateSpeakerDTO) {
     const { fullName, biography, photo, links, sessionIds } = data;
-
     return prisma.speaker.create({
       data: {
         fullName,
         biography,
         photo: photo ?? null,
-        links: links ?? null,
+        links: links !== undefined && links !== null
+          ? (links as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
         sessions:
           sessionIds && sessionIds.length > 0
             ? { create: sessionIds.map((sessionId) => ({ sessionId })) }
@@ -76,7 +73,11 @@ export const speakerRepository = {
           ...(scalarFields.fullName  !== undefined && { fullName:  scalarFields.fullName }),
           ...(scalarFields.biography !== undefined && { biography: scalarFields.biography }),
           ...(scalarFields.photo     !== undefined && { photo:     scalarFields.photo }),
-          ...(scalarFields.links     !== undefined && { links:     scalarFields.links }),
+          ...(scalarFields.links     !== undefined && {
+            links: scalarFields.links !== null
+              ? (scalarFields.links as Prisma.InputJsonValue)
+              : Prisma.JsonNull,
+          }),
         },
       });
 

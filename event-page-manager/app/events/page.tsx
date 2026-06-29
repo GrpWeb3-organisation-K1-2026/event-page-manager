@@ -19,7 +19,6 @@ interface Event {
   _count?: { sessions: number };
 }
 
-
 function isLive(s: string, e: string) {
   const n = new Date();
   return n >= new Date(s) && n <= new Date(e);
@@ -56,7 +55,6 @@ const AVATAR_COLORS = [
   "from-orange-400 to-red-500",
   "from-violet-500 to-pink-500",
 ];
-
 
 function AdminShieldIcon() {
   return (
@@ -127,7 +125,6 @@ function Navbar() {
     </>
   );
 }
-
 
 function EventCard({ event, index }: { event: Event; index: number }) {
   const live = hasLiveSession(event);
@@ -259,6 +256,13 @@ export default function EventsPage() {
 
   const liveCount = events.filter(hasLiveSession).length;
 
+  const TABS = [
+    { key: "all", label: "All" },
+    { key: "live", label: "Live now", dot: true },
+    { key: "upcoming", label: "Upcoming" },
+    { key: "ended", label: "Ended" },
+  ] as const;
+
   return (
     <>
       <style>{`
@@ -315,24 +319,20 @@ export default function EventsPage() {
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8 animate-[fadeUp_0.5s_0.1s_ease_both]">
-            {([
-              { key: "all", label: "All" },
-              { key: "live", label: "Live now", dot: true },
-              { key: "upcoming", label: "Upcoming" },
-              { key: "ended", label: "Ended" },
-            ] as const).map(({ key, label, dot }) => (
+            {TABS.map((tab) => (
               <button
-                key={key}
-                onClick={() => setFilter(key)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl border transition-all ${filter === key
-                  ? key === "live"
-                    ? "bg-emerald-400/15 border-emerald-400/30 text-emerald-400"
-                    : "bg-indigo-500/15 border-indigo-500/30 text-indigo-300"
-                  : "bg-white/4 border-white/7 text-[#6b7280] hover:text-white hover:border-white/15"
-                  }`}
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
+                className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl border transition-all ${
+                  filter === tab.key
+                    ? tab.key === "live"
+                      ? "bg-emerald-400/15 border-emerald-400/30 text-emerald-400"
+                      : "bg-indigo-500/15 border-indigo-500/30 text-indigo-300"
+                    : "bg-white/4 border-white/7 text-[#6b7280] hover:text-white hover:border-white/15"
+                }`}
               >
-                {dot && <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />}
-                {label}
+                {"dot" in tab && <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />}
+                {tab.label}
               </button>
             ))}
           </div>
