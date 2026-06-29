@@ -10,7 +10,7 @@ const PUBLIC_WRITE_ROUTES = [
   "/api/questions/",
 ];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const needsAuth =
