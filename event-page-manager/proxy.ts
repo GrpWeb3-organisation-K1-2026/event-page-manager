@@ -5,9 +5,9 @@ const JWT_SECRET = process.env.JWT_SECRET ?? "eventsync-dev-secret";
 const WRITE_METHODS = ["POST", "PATCH", "PUT", "DELETE"];
 
 const PUBLIC_WRITE_ROUTES = [
-  "/api/auth/",
-  "/api/sessions/",
-  "/api/questions/",
+  "/api/auth",
+  "/api/sessions",
+  "/api/questions",
 ];
 
 export function proxy(request: NextRequest) {

@@ -1,51 +1,75 @@
 import { prisma } from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(_request: NextRequest) {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const events = await prisma.event.findMany({
+    const { id } = await params;
+    const event = await prisma.event.findUnique({
+      where: { id: Number(id) },
       include: {
-        _count: { select: { sessions: true } },
+        sessions: {
+          include: {
+            room: true,
+            speakers: {
+              include: {
+                speaker: true,
+              },
+            },
+          },
+          orderBy: { startDate: "asc" },
+        },
       },
-      orderBy: { startDate: "asc" },
     });
 
-    const response = NextResponse.json({ data: events });
-    response.headers.set("X-Total-Count", String(events.length));
-    response.headers.set("Access-Control-Expose-Headers", "X-Total-Count");
-    return response;
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: event });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title, description, startDate, endDate, place } = body;
 
-    if (!title || !description || !startDate || !endDate || !place) {
-      return NextResponse.json(
-        {
-          error:
-            "Missing required fields: title, description, startDate, endDate, place",
-        },
-        { status: 422 }
-      );
-    }
-
-    const event = await prisma.event.create({
+    const event = await prisma.event.update({
+      where: { id: Number(id) },
       data: {
-        title,
-        description,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        place,
+        ...(title && { title }),
+        ...(description && { description }),
+        ...(startDate && { startDate: new Date(startDate) }),
+        ...(endDate && { endDate: new Date(endDate) }),
+        ...(place && { place }),
       },
     });
 
-    return NextResponse.json({ data: event }, { status: 201 });
+    return NextResponse.json({ data: event });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    await prisma.event.delete({ where: { id: Number(id) } });
+    return NextResponse.json({ data: { id: Number(id) } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

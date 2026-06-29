@@ -183,8 +183,8 @@ function QuestionCard({ question, onUpvote, hasVoted }: {
   );
 }
 
-export default function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function SessionDetailPage({ params }: { params: Promise<{ id: string; sessionId: string }> }) {
+  const { sessionId: id } = use(params);
   const [session, setSession] = useState<Session | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
